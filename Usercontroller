@@ -1,0 +1,51 @@
+import { Request, Response } from 'express';
+import User from '../models/user.model';
+import Address from '../models/address.model';
+
+// Create User
+export const createUser = async (req: Request, res: Response) => {
+  try {
+    const { firstName, lastName, email, companyAddress, companyCity, companyState, companyZip, homeAddress, homeCity, homeState, homeZip } = req.body;
+
+    const profilePhoto = req.files?.profilePhoto ? req.files.profilePhoto[0].filename : null;
+    const appointmentLetter = req.files?.appointmentLetter ? req.files.appointmentLetter[0].filename : null;
+
+    const newUser = await User.create({
+      firstName,
+      lastName,
+      email,
+      profilePhoto,
+      appointmentLetter,
+    });
+
+    await Address.create({
+      userId: newUser.id,
+      companyAddress,
+      companyCity,
+      companyState,
+      companyZip,
+      homeAddress,
+      homeCity,
+      homeState,
+      homeZip,
+    });
+
+    return res.status(201).json({ message: 'User created successfully', user: newUser });
+  } catch (error) {
+    return res.status(500).json({ message: 'Error creating user', error });
+  }
+};
+
+// View User
+export const getUserById = async (req: Request, res: Response) => {
+  try {
+    const user = await User.findByPk(req.params.id, { include: Address });
+    if (!user) {
+      return res.status(404).json({ message: 'User not found' });
+    }
+
+    return res.status(200).json({ user });
+  } catch (error) {
+    return res.status(500).json({ message: 'Error fetching user', error });
+  }
+};
