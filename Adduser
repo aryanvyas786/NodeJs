@@ -1,39 +1,22 @@
-import React, { useEffect, useState } from 'react';
-import { Link } from 'react-router-dom';
-import { getUsers, deleteUser } from '../services/userService';
+import React from 'react';
+import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
+import AddUser from './components/AddUser';
+import ViewUser from './components/ViewUser';
+import EditUser from './components/EditUser';
 
-const ViewUser = () => {
-  const [users, setUsers] = useState([]);
-
-  useEffect(() => {
-    const fetchUsers = async () => {
-      const response = await getUsers();
-      setUsers(response);
-    };
-
-    fetchUsers();
-  }, []);
-
-  const handleDelete = async (id: number) => {
-    await deleteUser(id);
-    setUsers(users.filter(user => user.id !== id)); // Update local state after deletion
-  };
-
+const App: React.FC = () => {
   return (
-    <div>
-      <h2>User List</h2>
-      {users.map((user: any) => (
-        <div key={user.id}>
-          <img src={`http://localhost:3001/${user.profilePhoto}`} alt="Profile" />
-          <h3>{user.firstName} {user.lastName}</h3>
-          <p>Email: {user.email}</p>
-          <a href={`http://localhost:3001/${user.appointmentLetter}`}>View Appointment Letter</a>
-          <Link to={`/edit-user/${user.id}`}>Edit</Link>
-          <button onClick={() => handleDelete(user.id)}>Delete</button>
-        </div>
-      ))}
-    </div>
+    <Router>
+      <div>
+        <h1>User Management System</h1>
+        <Routes>
+          <Route path="/" element={<AddUser />} />
+          <Route path="/view-users" element={<ViewUser />} />
+          <Route path="/edit-user/:id" element={<EditUser />} />
+        </Routes>
+      </div>
+    </Router>
   );
 };
 
-export default ViewUser;
+export default App;
