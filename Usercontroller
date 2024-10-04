@@ -1,58 +1,37 @@
-// Update an existing user
-export const updateUser = async (req: Request, res: Response) => {
-  const { id } = req.params;
-  const {
-    firstName,
-    lastName,
-    email,
-    companyAddress,
-    companyCity,
-    companyState,
-    companyZip,
-    homeAddress,
-    homeCity,
-    homeState,
-    homeZip,
-  } = req.body;
+import { Request, Response } from 'express';
+import User from '../models/User';
+import Address from '../models/Address';
 
+export const addUser = async (req: Request, res: Response) => {
   try {
-    const user = await User.findByPk(id);
-    if (!user) {
-      return res.status(404).json({ message: 'User not found' });
-    }
+    const userData = {
+      firstName: req.body.firstName,
+      lastName: req.body.lastName,
+      email: req.body.email,
+      profilePhoto: req.file.path,
+      appointmentLetter: req.body.appointmentLetter,
+    };
 
-    await user.update({
-      firstName,
-      lastName,
-      email,
-    });
+    const user = await User.create(userData);
+    
+    const addressData = {
+      userId: user.id,
+      companyAddress: req.body.companyAddress,
+      companyCity: req.body.companyCity,
+      companyState: req.body.companyState,
+      companyZip: req.body.companyZip,
+      homeAddress: req.body.homeAddress,
+      homeCity: req.body.homeCity,
+      homeState: req.body.homeState,
+      homeZip: req.body.homeZip,
+    };
 
-    const address = await Address.findOne({ where: { userId: user.id } });
-    if (address) {
-      await address.update({
-        companyAddress,
-        companyCity,
-        companyState,
-        companyZip,
-        homeAddress,
-        homeCity,
-        homeState,
-        homeZip,
-      });
-    }
+    await Address.create(addressData);
 
-    if (req.file) {
-      user.profilePhoto = req.file.filename;
-    }
-
-    if (req.files && req.files.appointmentLetter) {
-      user.appointmentLetter = req.files.appointmentLetter[0].filename;
-    }
-
-    await user.save();
-
-    res.status(200).json({ user });
+    res.status(201).json(user);
   } catch (error) {
-    res.status(500).json({ error: 'Failed to update user' });
+    res.status(500).json({ message: error.message });
   }
 };
+
+// Other controller functions (viewUser, editUser) should be implemented similarly
