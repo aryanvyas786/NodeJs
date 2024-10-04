@@ -1,156 +1,104 @@
 import React from 'react';
-import { Formik, Field, Form, ErrorMessage } from 'formik';
+import { Formik, Form, Field, ErrorMessage } from 'formik';
 import * as Yup from 'yup';
-import axios from 'axios';
+import { addUser } from '../services/userService';
 
-const validationSchema = Yup.object().shape({
-  firstName: Yup.string().required('First Name is required'),
-  lastName: Yup.string().required('Last Name is required'),
-  email: Yup.string().email('Invalid email').required('Email is required'),
-  companyAddress: Yup.string().required('Company Address is required'),
-  companyCity: Yup.string().required('Company City is required'),
-  companyState: Yup.string().required('Company State is required'),
-  companyZip: Yup.string().matches(/^\d{6}$/, 'Must be a 6 digit zip code').required('Company Zip is required'),
-  homeAddress: Yup.string().required('Home Address is required'),
-  homeCity: Yup.string().required('Home City is required'),
-  homeState: Yup.string().required('Home State is required'),
-  homeZip: Yup.string().matches(/^\d{6}$/, 'Must be a 6 digit zip code').required('Home Zip is required'),
-  profilePhoto: Yup.mixed().required('Profile photo is required'),
-  appointmentLetter: Yup.mixed().required('Appointment letter is required'),
-});
+const AddUser = () => {
+  const initialValues = {
+    firstName: '',
+    lastName: '',
+    email: '',
+    profilePhoto: null,
+    companyAddress: '',
+    companyCity: '',
+    companyState: '',
+    companyZip: '',
+    homeAddress: '',
+    homeCity: '',
+    homeState: '',
+    homeZip: '',
+    appointmentLetter: null,
+  };
 
-const AddUserForm = () => {
-  const handleSubmit = async (values: any) => {
+  const validationSchema = Yup.object({
+    firstName: Yup.string().required('Required'),
+    lastName: Yup.string().required('Required'),
+    email: Yup.string().email('Invalid email').required('Required'),
+    profilePhoto: Yup.mixed().required('Required'),
+    companyAddress: Yup.string().required('Required'),
+    companyCity: Yup.string().required('Required'),
+    companyState: Yup.string().required('Required'),
+    companyZip: Yup.string().length(6, 'Must be exactly 6 characters').required('Required'),
+    homeAddress: Yup.string().required('Required'),
+    homeCity: Yup.string().required('Required'),
+    homeState: Yup.string().required('Required'),
+    homeZip: Yup.string().length(6, 'Must be exactly 6 characters').required('Required'),
+    appointmentLetter: Yup.mixed().required('Required'),
+  });
+
+  const onSubmit = async (values: typeof initialValues) => {
     const formData = new FormData();
-    formData.append('firstName', values.firstName);
-    formData.append('lastName', values.lastName);
-    formData.append('email', values.email);
-    formData.append('companyAddress', values.companyAddress);
-    formData.append('companyCity', values.companyCity);
-    formData.append('companyState', values.companyState);
-    formData.append('companyZip', values.companyZip);
-    formData.append('homeAddress', values.homeAddress);
-    formData.append('homeCity', values.homeCity);
-    formData.append('homeState', values.homeState);
-    formData.append('homeZip', values.homeZip);
-    formData.append('profilePhoto', values.profilePhoto);
-    formData.append('appointmentLetter', values.appointmentLetter);
-
-    try {
-      await axios.post('http://localhost:5000/api/user', formData, {
-        headers: { 'Content-Type': 'multipart/form-data' },
-      });
-      alert('User added successfully!');
-    } catch (error) {
-      console.error('Error adding user', error);
+    for (const key in values) {
+      formData.append(key, values[key as keyof typeof initialValues]);
     }
+
+    await addUser(formData);
+    // Redirect to View User screen
   };
 
   return (
-    <Formik
-      initialValues={{
-        firstName: '',
-        lastName: '',
-        email: '',
-        companyAddress: '',
-        companyCity: '',
-        companyState: '',
-        companyZip: '',
-        homeAddress: '',
-        homeCity: '',
-        homeState: '',
-        homeZip: '',
-        profilePhoto: null,
-        appointmentLetter: null,
-      }}
-      validationSchema={validationSchema}
-      onSubmit={handleSubmit}
-    >
+    <Formik initialValues={initialValues} validationSchema={validationSchema} onSubmit={onSubmit}>
       {({ setFieldValue }) => (
         <Form>
-          <div>
-            <label>First Name</label>
-            <Field name="firstName" />
-            <ErrorMessage name="firstName" component="div" />
-          </div>
-          <div>
-            <label>Last Name</label>
-            <Field name="lastName" />
-            <ErrorMessage name="lastName" component="div" />
-          </div>
-          <div>
-            <label>Email</label>
-            <Field name="email" type="email" />
-            <ErrorMessage name="email" component="div" />
-          </div>
-          <div>
-            <label>Company Address</label>
-            <Field name="companyAddress" />
-            <ErrorMessage name="companyAddress" component="div" />
-          </div>
-          <div>
-            <label>Company City</label>
-            <Field name="companyCity" />
-            <ErrorMessage name="companyCity" component="div" />
-          </div>
-          <div>
-            <label>Company State</label>
-            <Field name="companyState" />
-            <ErrorMessage name="companyState" component="div" />
-          </div>
-          <div>
-            <label>Company Zip</label>
-            <Field name="companyZip" />
-            <ErrorMessage name="companyZip" component="div" />
-          </div>
-          <div>
-            <label>Home Address</label>
-            <Field name="homeAddress" />
-            <ErrorMessage name="homeAddress" component="div" />
-          </div>
-          <div>
-            <label>Home City</label>
-            <Field name="homeCity" />
-            <ErrorMessage name="homeCity" component="div" />
-          </div>
-          <div>
-            <label>Home State</label>
-            <Field name="homeState" />
-            <ErrorMessage name="homeState" component="div" />
-          </div>
-          <div>
-            <label>Home Zip</label>
-            <Field name="homeZip" />
-            <ErrorMessage name="homeZip" component="div" />
-          </div>
-          <div>
-            <label>Profile Photo</label>
-            <input
-              name="profilePhoto"
-              type="file"
-              accept="image/png, image/jpg, image/jpeg"
-              onChange={(event) => setFieldValue('profilePhoto', event.currentTarget.files[0])}
-            />
-            <ErrorMessage name="profilePhoto" component="div" />
-          </div>
-          <div>
-            <label>Appointment Letter (PDF)</label>
-            <input
-              name="appointmentLetter"
-              type="file"
-              accept="application/pdf"
-              onChange={(event) => setFieldValue('appointmentLetter', event.currentTarget.files[0])}
-            />
-            <ErrorMessage name="appointmentLetter" component="div" />
-          </div>
-          <div>
-            <button type="submit">Submit</button>
-            <button type="reset">Cancel</button>
-          </div>
+          <Field name="firstName" placeholder="First Name" />
+          <ErrorMessage name="firstName" component="div" />
+          
+          <Field name="lastName" placeholder="Last Name" />
+          <ErrorMessage name="lastName" component="div" />
+
+          <Field name="email" type="email" placeholder="Email" />
+          <ErrorMessage name="email" component="div" />
+
+          <input type="file" name="profilePhoto" accept="image/png, image/jpeg" onChange={(event: any) => {
+            setFieldValue("profilePhoto", event.currentTarget.files[0]);
+          }} />
+          <ErrorMessage name="profilePhoto" component="div" />
+
+          <Field name="companyAddress" placeholder="Company Address" />
+          <ErrorMessage name="companyAddress" component="div" />
+
+          <Field name="companyCity" placeholder="Company City" />
+          <ErrorMessage name="companyCity" component="div" />
+
+          <Field name="companyState" placeholder="Company State" />
+          <ErrorMessage name="companyState" component="div" />
+
+          <Field name="companyZip" placeholder="Company Zip" />
+          <ErrorMessage name="companyZip" component="div" />
+
+          <Field name="homeAddress" placeholder="Home Address" />
+          <ErrorMessage name="homeAddress" component="div" />
+
+          <Field name="homeCity" placeholder="Home City" />
+          <ErrorMessage name="homeCity" component="div" />
+
+          <Field name="homeState" placeholder="Home State" />
+          <ErrorMessage name="homeState" component="div" />
+
+          <Field name="homeZip" placeholder="Home Zip" />
+          <ErrorMessage name="homeZip" component="div" />
+
+          <input type="file" name="appointmentLetter" accept="application/pdf" onChange={(event: any) => {
+            setFieldValue("appointmentLetter", event.currentTarget.files[0]);
+          }} />
+          <ErrorMessage name="appointmentLetter" component="div" />
+
+          <button type="submit">Submit</button>
+          <button type="button" onClick={() => {/* handle cancel */}}>Cancel</button>
         </Form>
       )}
     </Formik>
   );
 };
 
-export default AddUserForm;
+export default AddUser;
