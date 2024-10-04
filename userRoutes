@@ -1,0 +1,10 @@
+import { Router } from 'express';
+import { createUser, getUserById } from '../controllers/userController';
+import upload from '../middlewares/multerConfig';
+
+const router = Router();
+
+router.post('/user', upload.fields([{ name: 'profilePhoto' }, { name: 'appointmentLetter' }]), createUser);
+router.get('/user/:id', getUserById);
+
+export default router;
