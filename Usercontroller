@@ -1,37 +1,22 @@
-import { Request, Response } from 'express';
-import User from '../models/User';
-import Address from '../models/Address';
+import { Router } from 'express';
+import { addUser, getUsers, getUserById, updateUser, deleteUser } from '../controllers/userController';
+import upload from '../middleware/upload';
 
-export const addUser = async (req: Request, res: Response) => {
-  try {
-    const userData = {
-      firstName: req.body.firstName,
-      lastName: req.body.lastName,
-      email: req.body.email,
-      profilePhoto: req.file.path,
-      appointmentLetter: req.body.appointmentLetter,
-    };
+const router = Router();
 
-    const user = await User.create(userData);
-    
-    const addressData = {
-      userId: user.id,
-      companyAddress: req.body.companyAddress,
-      companyCity: req.body.companyCity,
-      companyState: req.body.companyState,
-      companyZip: req.body.companyZip,
-      homeAddress: req.body.homeAddress,
-      homeCity: req.body.homeCity,
-      homeState: req.body.homeState,
-      homeZip: req.body.homeZip,
-    };
+// Add a new user
+router.post('/users', upload.fields([{ name: 'profilePhoto' }, { name: 'appointmentLetter' }]), addUser);
 
-    await Address.create(addressData);
+// Get all users
+router.get('/users', getUsers);
 
-    res.status(201).json(user);
-  } catch (error) {
-    res.status(500).json({ message: error.message });
-  }
-};
+// Get a single user by ID
+router.get('/users/:id', getUserById);
 
-// Other controller functions (viewUser, editUser) should be implemented similarly
+// Update a user by ID
+router.put('/users/:id', upload.fields([{ name: 'profilePhoto' }, { name: 'appointmentLetter' }]), updateUser);
+
+// Delete a user by ID
+router.delete('/users/:id', deleteUser);
+
+export default router;
