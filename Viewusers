@@ -1,0 +1,41 @@
+import React, { useEffect, useState } from 'react';
+import axios from 'axios';
+
+const ViewUser = ({ userId }: { userId: number }) => {
+  const [user, setUser] = useState<any>(null);
+
+  useEffect(() => {
+    const fetchUser = async () => {
+      try {
+        const { data } = await axios.get(`http://localhost:5000/api/user/${userId}`);
+        setUser(data.user);
+      } catch (error) {
+        console.error('Error fetching user data', error);
+      }
+    };
+
+    fetchUser();
+  }, [userId]);
+
+  if (!user) return <div>Loading...</div>;
+
+  return (
+    <div>
+      <img src={`http://localhost:5000/uploads/${user.profilePhoto}`} alt="Profile" width="100" />
+      <p>First Name: {user.firstName}</p>
+      <p>Last Name: {user.lastName}</p>
+      <p>Email: {user.email}</p>
+      <p>Company Address: {user.Address.companyAddress}</p>
+      <p>Company City: {user.Address.companyCity}</p>
+      <p>Company State: {user.Address.companyState}</p>
+      <p>Company Zip: {user.Address.companyZip}</p>
+      <p>Home Address: {user.Address.homeAddress}</p>
+      <p>Home City: {user.Address.homeCity}</p>
+      <p>Home State: {user.Address.homeState}</p>
+      <p>Home Zip: {user.Address.homeZip}</p>
+      <a href={`http://localhost:5000/uploads/${user.appointmentLetter}`} target="_blank" rel="noopener noreferrer">Download Appointment Letter</a>
+    </div>
+  );
+};
+
+export default ViewUser;
