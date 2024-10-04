@@ -1,0 +1,156 @@
+import React from 'react';
+import { Formik, Field, Form, ErrorMessage } from 'formik';
+import * as Yup from 'yup';
+import axios from 'axios';
+
+const validationSchema = Yup.object().shape({
+  firstName: Yup.string().required('First Name is required'),
+  lastName: Yup.string().required('Last Name is required'),
+  email: Yup.string().email('Invalid email').required('Email is required'),
+  companyAddress: Yup.string().required('Company Address is required'),
+  companyCity: Yup.string().required('Company City is required'),
+  companyState: Yup.string().required('Company State is required'),
+  companyZip: Yup.string().matches(/^\d{6}$/, 'Must be a 6 digit zip code').required('Company Zip is required'),
+  homeAddress: Yup.string().required('Home Address is required'),
+  homeCity: Yup.string().required('Home City is required'),
+  homeState: Yup.string().required('Home State is required'),
+  homeZip: Yup.string().matches(/^\d{6}$/, 'Must be a 6 digit zip code').required('Home Zip is required'),
+  profilePhoto: Yup.mixed().required('Profile photo is required'),
+  appointmentLetter: Yup.mixed().required('Appointment letter is required'),
+});
+
+const AddUserForm = () => {
+  const handleSubmit = async (values: any) => {
+    const formData = new FormData();
+    formData.append('firstName', values.firstName);
+    formData.append('lastName', values.lastName);
+    formData.append('email', values.email);
+    formData.append('companyAddress', values.companyAddress);
+    formData.append('companyCity', values.companyCity);
+    formData.append('companyState', values.companyState);
+    formData.append('companyZip', values.companyZip);
+    formData.append('homeAddress', values.homeAddress);
+    formData.append('homeCity', values.homeCity);
+    formData.append('homeState', values.homeState);
+    formData.append('homeZip', values.homeZip);
+    formData.append('profilePhoto', values.profilePhoto);
+    formData.append('appointmentLetter', values.appointmentLetter);
+
+    try {
+      await axios.post('http://localhost:5000/api/user', formData, {
+        headers: { 'Content-Type': 'multipart/form-data' },
+      });
+      alert('User added successfully!');
+    } catch (error) {
+      console.error('Error adding user', error);
+    }
+  };
+
+  return (
+    <Formik
+      initialValues={{
+        firstName: '',
+        lastName: '',
+        email: '',
+        companyAddress: '',
+        companyCity: '',
+        companyState: '',
+        companyZip: '',
+        homeAddress: '',
+        homeCity: '',
+        homeState: '',
+        homeZip: '',
+        profilePhoto: null,
+        appointmentLetter: null,
+      }}
+      validationSchema={validationSchema}
+      onSubmit={handleSubmit}
+    >
+      {({ setFieldValue }) => (
+        <Form>
+          <div>
+            <label>First Name</label>
+            <Field name="firstName" />
+            <ErrorMessage name="firstName" component="div" />
+          </div>
+          <div>
+            <label>Last Name</label>
+            <Field name="lastName" />
+            <ErrorMessage name="lastName" component="div" />
+          </div>
+          <div>
+            <label>Email</label>
+            <Field name="email" type="email" />
+            <ErrorMessage name="email" component="div" />
+          </div>
+          <div>
+            <label>Company Address</label>
+            <Field name="companyAddress" />
+            <ErrorMessage name="companyAddress" component="div" />
+          </div>
+          <div>
+            <label>Company City</label>
+            <Field name="companyCity" />
+            <ErrorMessage name="companyCity" component="div" />
+          </div>
+          <div>
+            <label>Company State</label>
+            <Field name="companyState" />
+            <ErrorMessage name="companyState" component="div" />
+          </div>
+          <div>
+            <label>Company Zip</label>
+            <Field name="companyZip" />
+            <ErrorMessage name="companyZip" component="div" />
+          </div>
+          <div>
+            <label>Home Address</label>
+            <Field name="homeAddress" />
+            <ErrorMessage name="homeAddress" component="div" />
+          </div>
+          <div>
+            <label>Home City</label>
+            <Field name="homeCity" />
+            <ErrorMessage name="homeCity" component="div" />
+          </div>
+          <div>
+            <label>Home State</label>
+            <Field name="homeState" />
+            <ErrorMessage name="homeState" component="div" />
+          </div>
+          <div>
+            <label>Home Zip</label>
+            <Field name="homeZip" />
+            <ErrorMessage name="homeZip" component="div" />
+          </div>
+          <div>
+            <label>Profile Photo</label>
+            <input
+              name="profilePhoto"
+              type="file"
+              accept="image/png, image/jpg, image/jpeg"
+              onChange={(event) => setFieldValue('profilePhoto', event.currentTarget.files[0])}
+            />
+            <ErrorMessage name="profilePhoto" component="div" />
+          </div>
+          <div>
+            <label>Appointment Letter (PDF)</label>
+            <input
+              name="appointmentLetter"
+              type="file"
+              accept="application/pdf"
+              onChange={(event) => setFieldValue('appointmentLetter', event.currentTarget.files[0])}
+            />
+            <ErrorMessage name="appointmentLetter" component="div" />
+          </div>
+          <div>
+            <button type="submit">Submit</button>
+            <button type="reset">Cancel</button>
+          </div>
+        </Form>
+      )}
+    </Formik>
+  );
+};
+
+export default AddUserForm;
