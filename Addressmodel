@@ -1,14 +1,31 @@
-import { DataTypes, Model } from 'sequelize';
+import { Model, DataTypes } from 'sequelize';
 import sequelize from '../config/database';
-import User from './user.model';
 
-class Address extends Model {}
+class Address extends Model {
+  public id!: number;
+  public userId!: number;
+  public companyAddress!: string;
+  public companyCity!: string;
+  public companyState!: string;
+  public companyZip!: string;
+  public homeAddress!: string;
+  public homeCity!: string;
+  public homeState!: string;
+  public homeZip!: string;
+
+  public readonly createdAt!: Date;
+  public readonly updatedAt!: Date;
+}
 
 Address.init({
   id: {
     type: DataTypes.INTEGER,
-    primaryKey: true,
     autoIncrement: true,
+    primaryKey: true,
+  },
+  userId: {
+    type: DataTypes.INTEGER,
+    allowNull: false,
   },
   companyAddress: {
     type: DataTypes.STRING,
@@ -23,7 +40,7 @@ Address.init({
     allowNull: false,
   },
   companyZip: {
-    type: DataTypes.STRING,
+    type: DataTypes.STRING(6),
     allowNull: false,
   },
   homeAddress: {
@@ -39,15 +56,12 @@ Address.init({
     allowNull: false,
   },
   homeZip: {
-    type: DataTypes.STRING,
+    type: DataTypes.STRING(6),
     allowNull: false,
   },
 }, {
   sequelize,
-  modelName: 'Address',
+  tableName: 'addresses',
 });
-
-Address.belongsTo(User);
-User.hasOne(Address);
 
 export default Address;
