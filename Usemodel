@@ -1,13 +1,24 @@
-import { DataTypes, Model } from 'sequelize';
+import { Model, DataTypes } from 'sequelize';
 import sequelize from '../config/database';
+import Address from './Address';
 
-class User extends Model {}
+class User extends Model {
+  public id!: number;
+  public firstName!: string;
+  public lastName!: string;
+  public email!: string;
+  public profilePhoto!: string;
+  public appointmentLetter!: string;
+
+  public readonly createdAt!: Date;
+  public readonly updatedAt!: Date;
+}
 
 User.init({
   id: {
     type: DataTypes.INTEGER,
-    primaryKey: true,
     autoIncrement: true,
+    primaryKey: true,
   },
   firstName: {
     type: DataTypes.STRING,
@@ -20,16 +31,22 @@ User.init({
   email: {
     type: DataTypes.STRING,
     allowNull: false,
+    unique: true,
   },
   profilePhoto: {
     type: DataTypes.STRING,
+    allowNull: false,
   },
   appointmentLetter: {
     type: DataTypes.STRING,
+    allowNull: false,
   },
 }, {
   sequelize,
-  modelName: 'User',
+  tableName: 'users',
 });
+
+User.hasMany(Address, { foreignKey: 'userId' });
+Address.belongsTo(User, { foreignKey: 'userId' });
 
 export default User;
